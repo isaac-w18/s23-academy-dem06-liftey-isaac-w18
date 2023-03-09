@@ -12,44 +12,42 @@ struct CreateExerciseView: View {
     @ObservedObject var viewModel: WorkoutViewModel
     @Environment(\.dismiss) var dismiss
     
-    @State var name = ""
-    @State var reps = 8
-    @State var sets = 3
-    @State var weight = "0"
-    
     
     var body: some View {
         Form {
             Section("Exercise Name") {
-                TextField("Create an exercise!", text: $name)
+                TextField("Create an exercise!", text: $viewModel.name)
             }
             
             Section("Details") {
-                Stepper("Reps: \(reps)", value: $reps)
-                Stepper("Sets: \(sets)", value: $sets)
+                Stepper("Reps: \(viewModel.reps)", value: $viewModel.reps)
+                Stepper("Sets: \(viewModel.sets)", value: $viewModel.sets)
                 HStack {
                     Text("Weight: ")
                         .bold()
-                    TextField("", text: $weight)
+                    TextField("", text: $viewModel.weight)
                         .fixedSize()
                         .textFieldStyle(.roundedBorder)
                         .keyboardType(.decimalPad)
-                        .onReceive(Just(weight)) { newValue in
+                        .onReceive(Just(viewModel.weight)) { newValue in
                             let filtered = newValue.filter { "0123456789".contains($0) }
                             if filtered != newValue {
-                                weight = filtered
+                                viewModel.weight = filtered
                             }
                         }
                     Text("lbs")
                 }
+                
             }
             
             Section {
                 Button {
-                    viewModel.workout.exercises.append(Exercise(name: name, reps: reps, sets: sets, weight: Int(weight) ?? 0))
+                    viewModel.workout.exercises.append(Exercise(name: viewModel.name, reps: viewModel.reps, sets: viewModel.sets, weight: Int(viewModel.weight) ?? 0))
+                    dismiss()
                 } label: {
                     Text("Create Exercise")
                 }
+                .disabled(!viewModel.isValid)
             }
         }
     }
